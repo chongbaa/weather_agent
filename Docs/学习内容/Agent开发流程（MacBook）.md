@@ -1,14 +1,12 @@
-# Agent开发流程（MacBook）
-
 ### 一. 安装虚拟环境.venv/文件夹
 
-| 排名 | 方法 | 命令创建方式 | 推荐指数 | 现在主流程度 | 备注与适用场景 |
-| --- | --- | --- | --- | --- | --- |
-| 1 | uv (最快、最现代) | `uv venv` | ★★★★★ | 非常高 | 2024~2025 年上升最快的工具，速度极快 |
-| 2 | python -m venv | `python3 -m venv .venv` | ★★★★☆ | 非常高 | 官方内置、最稳定、零依赖 |
-| 3 | conda / miniforge | `conda create -n myenv python=3.11` | ★★★★ | 中高 | 需要科学计算、重环境隔离时最方便 |
-| 4 | virtualenv | `virtualenv .venv` | ★★☆ | 下降中 | 以前很流行，现在基本被 python -m venv 取代 |
-| 5 | poetry / pdm 内置虚拟环境 | `poetry env use python3.12` / `pdm venv` | ★★★ | 中高 | 项目管理工具自带虚拟环境，不建议单独用 |
+|排名|方法|命令创建方式|推荐指数|现在主流程度|备注与适用场景|
+|---|---|---|---|---|---|
+|1|uv (最快、最现代)|`uv venv`|★★★★★|非常高|2024~2025 年上升最快的工具，速度极快|
+|2|python -m venv|`python3 -m venv .venv`|★★★★☆|非常高|官方内置、最稳定、零依赖|
+|3|conda / miniforge|`conda create -n myenv python=3.11`|★★★★|中高|需要科学计算、重环境隔离时最方便|
+|4|virtualenv|`virtualenv .venv`|★★☆|下降中|以前很流行，现在基本被 python -m venv 取代|
+|5|poetry / pdm 内置虚拟环境|`poetry env use python3.12` / `pdm venv`|★★★|中高|项目管理工具自带虚拟环境，不建议单独用|
 
 ### 1. 最推荐（2025 年主流做法）→ 使用 uv（速度最快）
 
@@ -54,12 +52,12 @@ deactivate
 
 检查.venv/是否安装成功：
 
-| 想确认什么 | 命令/操作 | 如果看到这个 → .venv 存在/在使用中 |
-| --- | --- | --- |
-| 文件夹是否存在 | `ls -la` | 有 `.venv` 文件夹 |
-| VS Code 是否识别 | 左下角状态栏 或 Python: Select Interpreter | 列表里有 `./.venv/bin/python` |
-| 当前是否激活 | 看提示符 + `which python3` | 提示符有 `(.venv)` 或路径在 `.venv/bin` |
-| 是否有效 .venv | `cat .venv/pyvenv.cfg` 或上面 Python 代码 | 有 `home = ...` 或输出 “在 venv 中” |
+|想确认什么|命令/操作|如果看到这个 → .venv 存在/在使用中|
+|---|---|---|
+|文件夹是否存在|`ls -la`|有 `.venv` 文件夹|
+|VS Code 是否识别|左下角状态栏 或 Python: Select Interpreter|列表里有 `./.venv/bin/python`|
+|当前是否激活|看提示符 + `which python3`|提示符有 `(.venv)` 或路径在 `.venv/bin`|
+|是否有效 .venv|`cat .venv/pyvenv.cfg` 或上面 Python 代码|有 `home = ...` 或输出 “在 venv 中”|
 
 ### 3. 如果你是做数据科学/AI/ML（强烈推荐 conda/miniforge）
 
@@ -80,20 +78,20 @@ pip install jupyterlab polars xgboost
 
 **conda 和 venv 的区别**（2025 年最新对比，Python 项目最常用两种虚拟环境工具）
 
-| 项目 | venv（python -m venv 或 uv venv） | conda（Miniconda / Miniforge / Anaconda） | 谁更适合你？（2025 年主流选择） |
-| --- | --- | --- | --- |
-| **本质** | 纯 Python 的轻量虚拟环境，只隔离 Python 解释器 + pip 包 | 完整的包管理 + 环境管理系统（支持非 Python 包） | — |
-| **创建速度** | 极快（1–5 秒） | 较慢（10–60 秒，甚至几分钟） | venv / uv 完胜 |
-| **安装包速度** | pip 普通，uv pip 超级快 | conda 安装科学计算包快，但整体比 uv 慢 | uv > conda > pip |
-| **包来源** | PyPI（Python 官方包仓库） | conda-forge / defaults（有大量预编译二进制包） | conda 在科学计算上更有优势 |
-| **支持非 Python 包** | 不支持（不能装 C++ 库、CUDA、ffmpeg 等） | 支持（numpy、pytorch、tensorflow、opencv、R、Julia 等） | conda 大胜 |
-| **Python 版本管理** | 依赖系统已有 Python，或 uv 会自动下载 | 自己带完整 Python，可轻松切换任意版本（甚至 3.8~3.13） | conda 更方便多版本共存 |
-| **磁盘占用** | 非常小（几十 MB ~ 几百 MB） | 较大（基础环境 300MB+，装大包轻松上 GB） | venv 轻量党首选 |
-| **激活方式** | source .venv/bin/activate | conda activate myenv | 差不多 |
-| **依赖管理文件** | requirements.txt（或 pyproject.toml + uv lock） | environment.yml（可精确复现，包括 Python 版本） | conda 的 yml 更强大（可指定渠道、版本约束） |
-| **跨平台一致性** | 一般（Windows/Linux/macOS 编译问题多） | 极好（预编译二进制包，M 芯片 Mac 友好） | conda 完胜（尤其科学计算） |
-| **生态定位** | Web 后端、爬虫、脚本、小型项目、DevOps | 数据科学、机器学习、深度学习、科研、生物信息学 | 看你的领域 |
-| **2025 年主流推荐** | 普通 Python 项目、FastAPI/Django/爬虫/工具脚本 | AI/ML/数据分析/需要 GPU/CUDA/科学计算包的项目 | — |
+|项目|venv（python -m venv 或 uv venv）|conda（Miniconda / Miniforge / Anaconda）|谁更适合你？（2025 年主流选择）|
+|---|---|---|---|
+|**本质**|纯 Python 的轻量虚拟环境，只隔离 Python 解释器 + pip 包|完整的包管理 + 环境管理系统（支持非 Python 包）|—|
+|**创建速度**|极快（1–5 秒）|较慢（10–60 秒，甚至几分钟）|venv / uv 完胜|
+|**安装包速度**|pip 普通，uv pip 超级快|conda 安装科学计算包快，但整体比 uv 慢|uv > conda > pip|
+|**包来源**|PyPI（Python 官方包仓库）|conda-forge / defaults（有大量预编译二进制包）|conda 在科学计算上更有优势|
+|**支持非 Python 包**|不支持（不能装 C++ 库、CUDA、ffmpeg 等）|支持（numpy、pytorch、tensorflow、opencv、R、Julia 等）|conda 大胜|
+|**Python 版本管理**|依赖系统已有 Python，或 uv 会自动下载|自己带完整 Python，可轻松切换任意版本（甚至 3.8~3.13）|conda 更方便多版本共存|
+|**磁盘占用**|非常小（几十 MB ~ 几百 MB）|较大（基础环境 300MB+，装大包轻松上 GB）|venv 轻量党首选|
+|**激活方式**|source .venv/bin/activate|conda activate myenv|差不多|
+|**依赖管理文件**|requirements.txt（或 pyproject.toml + uv lock）|environment.yml（可精确复现，包括 Python 版本）|conda 的 yml 更强大（可指定渠道、版本约束）|
+|**跨平台一致性**|一般（Windows/Linux/macOS 编译问题多）|极好（预编译二进制包，M 芯片 Mac 友好）|conda 完胜（尤其科学计算）|
+|**生态定位**|Web 后端、爬虫、脚本、小型项目、DevOps|数据科学、机器学习、深度学习、科研、生物信息学|看你的领域|
+|**2025 年主流推荐**|普通 Python 项目、FastAPI/Django/爬虫/工具脚本|AI/ML/数据分析/需要 GPU/CUDA/科学计算包的项目|—|
 
 ### 4. 快速选择表（根据你的情况）
 
@@ -131,14 +129,16 @@ source .venv/bin/activate
 
 ### 四. 在项目根目录安装依赖环境：
 
-| 方式 | 命令示例 | 适用场景 | 优点 | 推荐指数 |
-| --- | --- | --- | --- | --- |
-| 1. 用 requirements.txt（最经典、最通用） | pip install -r requirements.txt | 几乎所有项目，尤其是别人分享或 GitHub 上 | 标准、兼容性最好 | ★★★★★ |
-| 2. 用 uv 安装（最快、2025 年主流） | uv pip install -r requirements.txt | 你用 uv 创建的环境 | 速度是 pip 的 5~10 倍 | ★★★★★ |
-| 3. 一个一个手动安装 | pip install requests httpx python-dotenv | 自己写的小项目、快速测试 | 简单、直观 | ★★★★ |
-| 4. 用 uv add（现代项目管理方式） | uv add requests httpx python-dotenv | 新项目，想自动生成/更新依赖文件 | 自动维护 pyproject.toml + lock | ★★★★☆ |
-| 5. poetry 项目 | poetry add requests | 用 poetry 管理整个项目 | 依赖冲突少、版本锁定好 | ★★★★ |
-| 6. conda 项目 | conda install numpy pandas 或 pip install | 数据科学/ML 项目 | 科学计算包安装更快 | ★★★ |
+**在安装requirements.txt前，先升级pip：**`python -m pip install --upgrade pip`
+
+|方式|命令示例|适用场景|优点|推荐指数|
+|---|---|---|---|---|
+|1. 用 requirements.txt（最经典、最通用）|pip install -r requirements.txt|几乎所有项目，尤其是别人分享或 GitHub 上|标准、兼容性最好|★★★★★|
+|2. 用 uv 安装（最快、2025 年主流）|uv pip install -r requirements.txt|你用 uv 创建的环境|速度是 pip 的 5~10 倍|★★★★★|
+|3. 一个一个手动安装|pip install requests httpx python-dotenv|自己写的小项目、快速测试|简单、直观|★★★★|
+|4. 用 uv add（现代项目管理方式）|uv add requests httpx python-dotenv|新项目，想自动生成/更新依赖文件|自动维护 pyproject.toml + lock|★★★★☆|
+|5. poetry 项目|poetry add requests|用 poetry 管理整个项目|依赖冲突少、版本锁定好|★★★★|
+|6. conda 项目|conda install numpy pandas 或 pip install|数据科学/ML 项目|科学计算包安装更快|★★★|
 
 **检验是否成功安装依赖环境：先激活虚拟环境（如果不激活，检查的是系统全局的包，而不是项目专属的。）见标题三**
 
@@ -173,7 +173,7 @@ pip list | grep requests
 pip show requests
 ```
 
-pip show 会显示包的详细信息（版本、位置、依赖等），如果没安装会提示 "WARNING:  Package(s) not found"。
+pip show 会显示包的详细信息（版本、位置、依赖等），如果没安装会提示 "WARNING: Package(s) not found"。
 
 - 小技巧：想生成 requirements.txt 格式的列表（方便分享或重建环境）：
 
@@ -211,13 +211,16 @@ pip freeze | grep requests
 2. 打开终端（Cmd + `），激活 .venv（或 VS Code 自动激活）。
 3. 在终端运行 pip list 即可看到。
     - 或者在 VS Code 扩展面板搜索 “Python” 扩展 → 有些版本有 “Python Packages” 视图，但最可靠还是终端。
-    ###### 常见问题排查
-- 没激活 .venv 就查 → 会看到系统全局的包，而不是项目里的 → 一定先 source .venv/bin/activate。
+
+### 常见问题排查
+
+- 没激活 .venv/ 就查 → 会看到系统全局的包，而不是项目里的 → 一定先 source .venv/bin/activate。
 - pip list 什么都不显示 → 说明虚拟环境刚创建，还没装任何第三方包（只有 pip 和 setuptools）。
 - 想确认安装路径 → 用 pip show 包名，看 Location 一行，通常是 …/.venv/lib/python3.x/site-packages。
 - 在项目根目录下创建.env，存放OPENAI_API_KEY
+- 删除.venv/：PowerShell：rmdir /s /q .venv
 
-### 五. 在项目根目录下创建.gitignore，存放不git的文件和文件夹
+### 五. 在项目根目录下创建.gitignore，存放git的文件和文件夹
 
 ### 六. 编写主代码
 
