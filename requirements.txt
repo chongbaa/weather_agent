@@ -19,3 +19,6 @@ requests>=2.31.0
 # Jupyter 開發（如果你用 notebook）
 ipykernel>=6.29.0
 jupyter>=1.0.0
+
+# WebUI
+streamlit==1.32.0
