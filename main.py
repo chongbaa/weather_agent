@@ -1,20 +1,18 @@
-"""
-Project entry point.
-This file should remain thin and only coordinate high‑level startup logic.
-"""
+import streamlit as st
+from myapp.core.engine import build_agent
 
-from myapp import create_app
+st.set_page_config(page_title="Weather Sage Pro", page_icon="🌪️")
+st.title("🌪️ Weather Sage Pro")
 
+query = st.text_input("请输入你的天气问题：")
 
-def main():
-    """
-    Main entry function.
-    Keep this minimal: initialize, configure, and run the application.
-    """
-    app = create_app()
-    app.run()
-
-
-if __name__ == "__main__":
-    main()
-
+if st.button("发送"):
+    if query.strip():
+        agent = build_agent()
+        result = agent.invoke(
+            {"messages": [("user", query)]},
+            config={"configurable": {"thread_id": "webui"}}
+        )
+        st.success(result["messages"][-1].content)
+    else:
+        st.warning("请输入内容")
