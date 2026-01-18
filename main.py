@@ -1,18 +1,15 @@
-import streamlit as st
+from myapp.core.registry import discover_plugins, get_ui_plugin
 from myapp.core.engine import build_agent
+import os
 
-st.set_page_config(page_title="天气查询助手", page_icon="🌪️")
-st.title("🌪️ 天气查询助手")
 
-query = st.text_input("请输入你的天气问题：")
+if __name__ == "__main__":
+    base = os.path.dirname(__file__)
 
-if st.button("发送"):
-    if query.strip():
-        agent = build_agent()
-        result = agent.invoke(
-            {"messages": [("user", query)]},
-            config={"configurable": {"thread_id": "webui"}}
-        )
-        st.success(result["messages"][-1].content)
-    else:
-        st.warning("请输入内容")
+    plugins = discover_plugins(
+        os.path.join(base, "myapp", "plugins"),
+        os.path.join(base, "myapp", "ui_plugins"),
+    )
+
+    ui = get_ui_plugin(plugins)
+    ui.entry(build_agent)

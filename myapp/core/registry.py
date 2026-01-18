@@ -1,41 +1,67 @@
-# myapp/core/registry.py
 import importlib
-import pkgutil
-import yaml
 import os
-from langchain_core.tools import Tool
-from myapp.utils.logging import init_logger
+import yaml
+from dataclasses import dataclass
 
-logger = init_logger("plugin-loader")
 
-def discover_plugins():
-    tools = []
-    from myapp.plugins import __path__ as plugin_path
+@dataclass
+class Plugin:
+    name: str
+    type: str          # tool / ui
+    module: object
+    entry: callable | None
+    config: dict
 
-    for _, name, _ in pkgutil.iter_modules(plugin_path):
-        plugin_dir = os.path.join(plugin_path[0], name)
-        config_path = os.path.join(plugin_dir, "plugin.yaml")
+def get_ui_plugin(plugins):
+    for p in plugins:
+        if p.type == "ui":
+            return p
+    raise RuntimeError("没有启用的 UI 插件")
 
-        if not os.path.exists(config_path):
-            logger.warning(f"插件 {name} 缺少 plugin.yaml，已跳过")
-            continue
+def get_tool_plugins(plugins):
+    return [p for p in plugins if p.type == "tool"]
 
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = yaml.safe_load(f)
+def discover_plugins(*roots):
+    """
+    扫描多个插件目录，返回 Plugin 对象列表
+    """
+    plugins = []
 
-        if not config.get("enabled", False):
-            logger.info(f"插件 {name} 被禁用，已跳过")
-            continue
+    for root in roots:
+        for name in os.listdir(root):
+            plugin_dir = os.path.join(root, name)
+            yaml_path = os.path.join(plugin_dir, "plugin.yaml")
 
-        try:
-            module = importlib.import_module(f"myapp.plugins.{name}.plugin")
-            for attr in dir(module):
-                obj = getattr(module, attr)
-                if callable(obj) and hasattr(obj, "__tool"):
-                    tools.append(Tool.from_function(obj))
-                    logger.info(f"插件 {name} 中的工具 {attr} 已加载")
-        except Exception as e:
-            logger.error(f"加载插件 {name} 失败: {e}")
+            if not os.path.isfile(yaml_path):
+                continue
 
-    return tools
+            with open(yaml_path, "r", encoding="utf-8") as f:
+                cfg = yaml.safe_load(f)
 
+            if not cfg.get("enabled", False):
+                continue
+
+            module = importlib.import_module(
+                cfg.get(
+                    "module",
+                    # 默认模块路径规则
+                    f"{root.replace(os.sep, '.')}.{name}.plugin"
+                )
+            )
+
+            entry = (
+                getattr(module, cfg["entry"])
+                if "entry" in cfg else None
+            )
+
+            plugins.append(
+                Plugin(
+                    name=cfg["name"],
+                    type=cfg["type"],
+                    module=module,
+                    entry=entry,
+                    config=cfg,
+                )
+            )
+
+    return plugins
