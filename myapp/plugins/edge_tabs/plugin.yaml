@@ -1,5 +1,4 @@
-# yaml-language-server: $schema=null
 name: edge_tabs
-description: 模拟获取当前浏览器标签页
-version: 1.0.0
+type: tool
 enabled: true
+description: 模拟获取当前浏览器标签页
